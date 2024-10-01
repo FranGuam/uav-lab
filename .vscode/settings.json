@@ -9,5 +9,9 @@
   "files.insertFinalNewline": true,
   "files.trimFinalNewlines": true,
   "python.defaultInterpreterPath": "/usr/bin/python3",
-  "python.analysis.exclude": ["**/build", "**/devel"]
+  "python.analysis.exclude": [
+    "**/build",
+    "**/devel"
+  ],
+  "cmake.ignoreCMakeListsMissing": true
 }

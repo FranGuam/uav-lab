@@ -1,6 +1,6 @@
 {
   "name": "ROS Noetic",
-  "dockerComposeFile": "docker-compose.windows.yml",
+  "dockerComposeFile": "docker-compose.linux.yml",
   "service": "ros",
   "mounts": ["source=${localWorkspaceFolder},target=/data,type=bind"],
   "workspaceFolder": "/data",

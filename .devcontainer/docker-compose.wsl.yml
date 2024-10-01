@@ -13,5 +13,9 @@ services:
       - /mnt/host/wslg/.X11-unix:/tmp/.X11-unix
       - /mnt/host/wslg:/mnt/host/wslg
     devices:
-      - /dev/dri:/dev/dri
+      - /dev/dri:/dev/dri # for GPU acceleration
+      # - /dev/bus/usb:/dev/bus/usb # for USB devices
+      # - /dev/input:/dev/input # for input devices
+      # - /dev/snd:/dev/snd # for sound devices
+      # - /dev/video0:/dev/video0 # for video devices
     command: bash -c "roscore"
