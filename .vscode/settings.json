@@ -7,5 +7,7 @@
   "files.autoSaveDelay": 1000,
   "files.autoSaveWhenNoErrors": true,
   "files.insertFinalNewline": true,
-  "files.trimFinalNewlines": true
+  "files.trimFinalNewlines": true,
+  "python.defaultInterpreterPath": "/usr/bin/python3",
+  "python.analysis.exclude": ["**/build", "**/devel"]
 }

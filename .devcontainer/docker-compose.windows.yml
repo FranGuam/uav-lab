@@ -1,0 +1,17 @@
+services:
+  ros:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - DISPLAY=:0
+      - WAYLAND_DISPLAY=wayland-0
+      - XDG_RUNTIME_DIR=/mnt/host/wslg/runtime-dir
+      - PULSE_SERVER=/mnt/host/wslg/PulseServer
+      - QT_X11_NO_MITSHM=1
+    volumes:
+      - /run/desktop/mnt/host/wslg/.X11-unix:/tmp/.X11-unix
+      - /run/desktop/mnt/host/wslg:/mnt/host/wslg
+    devices:
+      - /dev/dri:/dev/dri
+    command: bash -c "roscore"

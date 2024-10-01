@@ -1,0 +1,15 @@
+{
+  "name": "ROS Noetic",
+  "dockerComposeFile": "docker-compose.windows.yml",
+  "service": "ros",
+  "mounts": ["source=${localWorkspaceFolder},target=/data,type=bind"],
+  "workspaceFolder": "/data",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-iot.vscode-ros",
+        "ms-vscode.cmake-tools"
+      ]
+    }
+  }
+}
