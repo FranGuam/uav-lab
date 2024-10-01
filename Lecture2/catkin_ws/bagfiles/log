@@ -1,0 +1,45 @@
+header: 
+  seq: 1
+  stamp: 
+    secs: 1727603804
+    nsecs: 515208657
+  frame_id: ''
+level: 2
+name: "/record_1727603804372895014"
+msg: "Subscribing to /turtle1/cmd_vel"
+file: "/tmp/binarydeb/ros-noetic-rosbag-1.16.0/src/recorder.cpp"
+function: "shared_ptr<ros::Subscriber> rosbag::Recorder::subscribe"
+line: 256
+topics: 
+  - /rosout
+---
+header: 
+  seq: 2
+  stamp: 
+    secs: 1727603804
+    nsecs: 519949269
+  frame_id: ''
+level: 2
+name: "/record_1727603804372895014"
+msg: "Subscribing to /turtle1/pose"
+file: "/tmp/binarydeb/ros-noetic-rosbag-1.16.0/src/recorder.cpp"
+function: "shared_ptr<ros::Subscriber> rosbag::Recorder::subscribe"
+line: 256
+topics: 
+  - /rosout
+---
+header: 
+  seq: 3
+  stamp: 
+    secs: 1727603804
+    nsecs: 523264416
+  frame_id: ''
+level: 2
+name: "/record_1727603804372895014"
+msg: "Subscribing to /turtle1/color_sensor"
+file: "/tmp/binarydeb/ros-noetic-rosbag-1.16.0/src/recorder.cpp"
+function: "shared_ptr<ros::Subscriber> rosbag::Recorder::subscribe"
+line: 256
+topics: 
+  - /rosout
+---

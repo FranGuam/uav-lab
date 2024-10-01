@@ -1,0 +1,7 @@
+<launch>
+<!-- 先启动乌龟车项目 -->
+<node pkg="turtlesim" type="turtlesim_node" name="turtle1" />
+
+<!-- 再启动自己写的python节点 -->
+<node pkg="py_control" type="py_control.py" name="pycontrol"/>
+</launch>
