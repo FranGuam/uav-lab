@@ -163,7 +163,7 @@
       </link>
     </model>
 
-    <include>
+    <!-- <include>
       <name>shelf_1</name>
       <uri>model://shelf_2x1x2_4l</uri>
       <pose>3.5 8.0 0.0  0 0 4.71238898038</pose>
@@ -173,7 +173,7 @@
       <name>shelf_2</name>
       <uri>model://shelf_2x1x2_4l</uri>
       <pose>4.0 11.0 0.0  0 0 3.14159265359</pose>
-    </include>
+    </include> -->
 
     <include>
       <name>cafe_table</name>
@@ -370,11 +370,11 @@
       </link>
     </model>
 
-    <include>
+    <!-- <include>
       <name>shelf_3</name>
       <uri>model://shelf_1x1x.8_1l</uri>
       <pose>6.5 7.0 1.5  0 0 3.14159265359</pose>
-    </include>
+    </include> -->
 
     <model name="box_13">
       <pose>1.0 1.0 0.005  0 0 0</pose>
@@ -1268,4 +1268,3 @@
     
   </world>
 </sdf>
-
