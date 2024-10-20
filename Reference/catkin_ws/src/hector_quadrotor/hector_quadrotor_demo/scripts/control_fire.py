@@ -5,9 +5,13 @@ import rospy
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 
+import cv2
 import math
-from operator import xor
+import numpy as np
 from tf.transformations import euler_from_quaternion
+from cv_bridge import CvBridge, CvBridgeError
+from sensor_msgs.msg import Image
+from std_msgs.msg import String
 
 
 INTERVAL = 0.005
@@ -16,6 +20,8 @@ ANGULAR_SPEED_THRESHOLD = 0.01
 
 pose = Odometry().pose.pose
 twist = Odometry().twist.twist
+image = Image()
+bridge = CvBridge()
 
 def poseCallback(msg: Odometry):
     global pose, twist   
@@ -37,6 +43,30 @@ def angleDiff(current, target):
 
 def direction(pose, target_x, target_y):
     return math.atan2(target_y - pose.position.y, target_x - pose.position.x)
+
+def imageCallback(msg):
+    try:
+        global image
+        image = bridge.imgmsg_to_cv2(msg, 'bgr8')
+    except CvBridgeError as err:
+        rospy.logerr(err)
+
+def detect(image, color_range_list):
+    answer_list = []
+    img_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    for i in range(len(color_range_list)):
+        color_range = color_range_list[i]
+        mask = cv2.inRange(img_hsv, color_range[0], color_range[1])
+        answer_list.append(cv2.countNonZero(mask))
+    rospy.loginfo("answer_list: %s" % answer_list)
+    return answer_list
+
+def decision(answer_list, threshold):
+    if max(answer_list) < threshold:
+        return 'e'
+    else:
+        choices = ['r', 'y', 'b']
+        return choices[answer_list.index(max(answer_list))]
         
 
 class Controller:
@@ -407,6 +437,76 @@ def testXY(controller: Controller):
     controller.log()
     rospy.logwarn("Stop")
 
+def crossWindow(controller):
+    controller.move(1.75, 2, 2, 1.75, 3)
+    answer_list = detect(image, [color_range_red])
+    # Yes: 6175
+    # No: 0
+    if answer_list[0] > 1000:
+        controller.moveXYZ(1.75, 2, 1)
+        controller.moveXY(1.75, 4)
+        return
+    
+    controller.move(4.25, 2, 2, 4.25, 3)
+    answer_list = detect(image, [color_range_red])
+    # Yes: 5066
+    # No: 0
+    if answer_list[0] > 1000:
+        controller.moveXYZ(4.25, 2, 1)
+        controller.moveXY(4.25, 4)
+    else:
+        controller.moveXYZ(6.75, 2, 1)
+        controller.moveXY(6.75, 4)
+
+def observe(controller):
+    result = ['e', 'e', 'e', 'e', 'e']
+
+    controller.moveXY(3.5, 4)
+    controller.move(2, 7.5, 1, 3.5, 7.5) # 2
+    answer_list = detect(image, [color_range_red, color_range_yellow, color_range_blue])
+    # Red Yes: 6915 No: 0
+    # Yellow Yes: 6740 No: 0
+    # Blue Yes: 6626 No: 0
+    result[1] = decision(answer_list, 1000)
+
+    controller.moveXY(2, 12.5)
+    controller.move(4, 12.5, 2, 4, 11) # 4
+    answer_list = detect(image, [color_range_red, color_range_yellow, color_range_blue])
+    # Red Yes: 6832 No: 108
+    # Yellow Yes: 6673 No: 0
+    # Blue Yes: 6673 No: 0
+    result[3] = decision(answer_list, 1000)
+
+    controller.turnTo(1, 14.5) # 5
+    answer_list = detect(image, [color_range_red, color_range_yellow, color_range_blue])
+    # Red Yes: 896 No: 0
+    # Yellow Yes: 874 No: 0
+    # Blue Yes: 875 No: 0
+    result[4] = decision(answer_list, 500)
+
+    controller.moveXY(5.5, 12.5)
+    controller.move(6.5, 9.5, 2, 6.5, 7) # 1
+    answer_list = detect(image, [color_range_red, color_range_yellow, color_range_blue])
+    # Red Yes: 2371 No: 0
+    # Yellow Yes: 2405 No: 0
+    # Blue Yes: 2386 No: 0
+    result[0] = decision(answer_list, 1000)
+
+    controller.turnTo(5, 9.5) # 3
+    answer_list = detect(image, [color_range_red, color_range_yellow, color_range_blue])
+    # Red Yes: 5544 No: 10
+    # Yellow Yes: 5476 No: 10
+    # Blue Yes: 5399 No: 0
+    result[2] = decision(answer_list, 1000)
+
+    rospy.logwarn("result: %s" % result)
+    return ''.join(result)
+
+def land(controller):
+    controller.moveXY(5.5, 12.5)
+    controller.moveXY(7, 14.5)
+    controller.moveZ(0.2)
+
 
 if __name__=="__main__":
     try:
@@ -418,46 +518,22 @@ if __name__=="__main__":
             rospy.sleep(1)
         rospy.loginfo("Connected to /cmd_vel")
         controller = Controller(cmd_pub)
+        
+        camera_sub = rospy.Subscriber('/front_cam/camera/image', Image, imageCallback)
+        color_range_red = [(0, 120, 70), (10, 255, 255)]
+        color_range_yellow = [(26, 43, 46), (34, 255, 255)]
+        color_range_blue = [(100, 43, 46), (124, 255, 255)]
+
+        result_pub = rospy.Publisher('/tello/target_result', String)
 
         # testZ(controller)
         # controller.moveZ(1.5)
         # testTurn(controller)
         # testXY(controller)
 
-        controller.move(1.75, 2, 2, 1.75, 3)
-        rospy.logwarn("Stop")
-        controller.move(4.25, 2, 2, 4.25, 3)
-        rospy.logwarn("Stop")
-        controller.move(6.75, 2, 2, 6.75, 3)
-        rospy.logwarn("Stop")
-
-        controller.moveXYZ(4.25, 2, 1)
-        rospy.logwarn("Stop")
-        controller.moveXY(4.25, 4)
-        rospy.logwarn("Stop")
-        controller.moveXY(3.5, 4)
-        rospy.logwarn("Stop")
-        controller.move(2, 7.5, 1, 3.5, 7.5) # 2
-        rospy.logwarn("Stop")
-        controller.moveXY(2, 12.5)
-        rospy.logwarn("Stop")
-        controller.move(4, 12.5, 2, 4, 11) # 4
-        rospy.logwarn("Stop")
-        controller.turnTo(1, 14.5) # 5
-        rospy.logwarn("Stop")
-        controller.moveXY(5.5, 12.5)
-        rospy.logwarn("Stop")
-        controller.move(6.5, 9.5, 2, 6.5, 7) # 1
-        rospy.logwarn("Stop")
-        controller.turnTo(5, 9.5) # 3
-        rospy.logwarn("Stop")
-        controller.moveXY(5.5, 12.5)
-        rospy.logwarn("Stop")
-        controller.moveXY(7, 14.5)
-        rospy.logwarn("Stop")
-        controller.moveZ(0.2) # 终点
-        rospy.logwarn("Stop")
-  
+        crossWindow(controller)
+        result_pub.publish(observe(controller))
+        land(controller)
 
     except rospy.ROSInterruptException:
         print("ROSInterruptException")
