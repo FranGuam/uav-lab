@@ -7,7 +7,6 @@ from nav_msgs.msg import Odometry
 
 import cv2
 import math
-import numpy as np
 from tf.transformations import euler_from_quaternion
 from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image
@@ -53,11 +52,23 @@ def imageCallback(msg):
 
 def detect(image, color_range_list):
     answer_list = []
-    img_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    image_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     for i in range(len(color_range_list)):
         color_range = color_range_list[i]
-        mask = cv2.inRange(img_hsv, color_range[0], color_range[1])
+        mask = cv2.inRange(image_hsv, color_range[0], color_range[1])
+        # cv2.imshow('mask', mask)
+        # cv2.waitKey(0)
+        # circles = cv2.HoughCircles(mask, cv2.HOUGH_GRADIENT, dp=1, minDist=50, param1=100, param2=10, minRadius=10, maxRadius=100)
+        # rospy.loginfo("Circle: %s" % circles)
+        # if circles is not None:
+        #     image_circle = image.copy()
+        #     for circle in circles[0]:
+        #         cv2.circle(image_circle, (circle[0], circle[1]), circle[2], (0, 255, 0), 2)
+        #     cv2.imshow('image_circle', image_circle)
+        #     cv2.waitKey(0)
         answer_list.append(cv2.countNonZero(mask))
+        # else:
+        #     answer_list.append(0)
     rospy.loginfo("answer_list: %s" % answer_list)
     return answer_list
 
@@ -439,6 +450,7 @@ def testXY(controller: Controller):
 
 def crossWindow(controller):
     controller.move(1.75, 2, 2, 1.75, 3)
+    # cv2.imwrite('./cross_window1.jpg', image)
     answer_list = detect(image, [color_range_red])
     # Yes: 6175
     # No: 0
@@ -448,6 +460,7 @@ def crossWindow(controller):
         return
     
     controller.move(4.25, 2, 2, 4.25, 3)
+    # cv2.imwrite('./cross_window2.jpg', image)
     answer_list = detect(image, [color_range_red])
     # Yes: 5066
     # No: 0
@@ -463,6 +476,7 @@ def observe(controller):
 
     controller.moveXY(3.5, 4)
     controller.move(2, 7.5, 1, 3.5, 7.5) # 2
+    # cv2.imwrite('ball_2.jpg', image)
     answer_list = detect(image, [color_range_red, color_range_yellow, color_range_blue])
     # Red Yes: 6915 No: 0
     # Yellow Yes: 6740 No: 0
@@ -471,6 +485,7 @@ def observe(controller):
 
     controller.moveXY(2, 12.5)
     controller.move(4, 12.5, 2, 4, 11) # 4
+    # cv2.imwrite('ball_4.jpg', image)
     answer_list = detect(image, [color_range_red, color_range_yellow, color_range_blue])
     # Red Yes: 6832 No: 108
     # Yellow Yes: 6673 No: 0
@@ -478,6 +493,7 @@ def observe(controller):
     result[3] = decision(answer_list, 1000)
 
     controller.turnTo(1, 14.5) # 5
+    # cv2.imwrite('ball_5.jpg', image)
     answer_list = detect(image, [color_range_red, color_range_yellow, color_range_blue])
     # Red Yes: 896 No: 0
     # Yellow Yes: 874 No: 0
@@ -486,6 +502,7 @@ def observe(controller):
 
     controller.moveXY(5.5, 12.5)
     controller.move(6.5, 9.5, 2, 6.5, 7) # 1
+    # cv2.imwrite('ball_1.jpg', image)
     answer_list = detect(image, [color_range_red, color_range_yellow, color_range_blue])
     # Red Yes: 2371 No: 0
     # Yellow Yes: 2405 No: 0
@@ -493,6 +510,7 @@ def observe(controller):
     result[0] = decision(answer_list, 1000)
 
     controller.turnTo(5, 9.5) # 3
+    # cv2.imwrite('ball_3.jpg', image)
     answer_list = detect(image, [color_range_red, color_range_yellow, color_range_blue])
     # Red Yes: 5544 No: 10
     # Yellow Yes: 5476 No: 10
@@ -520,7 +538,7 @@ if __name__=="__main__":
         controller = Controller(cmd_pub)
         
         camera_sub = rospy.Subscriber('/front_cam/camera/image', Image, imageCallback)
-        color_range_red = [(0, 120, 70), (10, 255, 255)]
+        color_range_red = [(0, 120, 70), (0, 255, 255)]
         color_range_yellow = [(26, 43, 46), (34, 255, 255)]
         color_range_blue = [(100, 43, 46), (124, 255, 255)]
 
