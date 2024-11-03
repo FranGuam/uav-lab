@@ -8,6 +8,7 @@ services:
       - QT_X11_NO_MITSHM=1
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
+    network_mode: host # for using localhost without port mapping
     devices:
       - /dev/dri:/dev/dri # for GPU acceleration
       # - /dev/bus/usb:/dev/bus/usb # for USB devices

@@ -9,6 +9,12 @@ RUN apt install -y git
 # Create Symlinks for Python3
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
+# Install Python3-pip
+RUN apt install -y python3-pip
+
+# Configure pip source for Mainland China users
+# RUN pip config set global.index-url https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
+
 # # Rosdep (for non-Mainland China users)
 # RUN rosdep init
 # RUN rosdep update
