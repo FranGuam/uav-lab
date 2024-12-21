@@ -209,7 +209,7 @@ class TelloROS(Tello):
             return
         self.img_pub.publish(img_msg)
 
-    def send_command(self, command: str, timeout=3):
+    def send_command(self, command: str, timeout=1):
         """
         Send a command to the Tello and wait for a response.
 
