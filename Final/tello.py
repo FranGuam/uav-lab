@@ -156,7 +156,7 @@ class Tello:
                     packet_data = b''
             except socket.error as err:
                 packet_data = b''
-                logger.error("Caught exception socket.error : %s" % err)
+                logger.error("Socket Error : %s" % err)
             except socket.timeout:
                 packet_data = b''
                 logger.warning("Socket timeout")
