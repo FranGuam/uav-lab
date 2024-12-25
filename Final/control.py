@@ -30,11 +30,11 @@ def test_base_class():
     drone.send_command("sn?")
     drone.send_command("battery?")
     drone.send_command("wifi?")
-    drone.send_command("takeoff")
+    drone.send_command("takeoff", 0)
     print("State: ", drone.get_state())
     img = cv2.cvtColor(drone.get_image(), cv2.COLOR_RGB2BGR)
     cv2.imshow("tello_image", img)
-    drone.send_command("land")
+    drone.send_command("land", 0)
     cv2.waitKey(0)
 
 def test_ros_class():
@@ -44,11 +44,11 @@ def test_ros_class():
     drone.send_command("sn?")
     drone.send_command("battery?")
     drone.send_command("wifi?")
-    drone.send_command("takeoff")
+    drone.send_command("takeoff", 0)
     print("State: ", drone.get_state())
     img = cv2.cvtColor(drone.get_image(), cv2.COLOR_RGB2BGR)
     cv2.imshow("tello_image", img)
-    drone.send_command("land")
+    drone.send_command("land", 0)
     cv2.waitKey(0)
 
 def test_color_detection():
@@ -65,29 +65,22 @@ def test_color_detection():
         cv2.imshow('mask_'+color, mask)
     cv2.waitKey(0)
 
-def go(drone, x, y, z, mid, speed=10):
-    drone.send_command("go %d %d %d %d %d" % (x, y, z, speed, mid))
-    while abs(drone.get_state()['x'] - x) > 10 or abs(drone.get_state()['y'] - y) > 10 or abs(drone.get_state()['z'] - z) > 10:
-        if drone.get_state()['mid'] != mid:
-            drone.send_command("stop")
-            print("Mid changed")
-            break
-        time.sleep(0.1)
-    drone.send_command("stop")
+def go(drone, x, y, z, mid, speed=100):
+    drone.send_command("go %d %d %d %d m%d" % (x, y, z, speed, mid), 0)
 
 def test_go():
     rospy.init_node('tello', anonymous=True)
     drone = TelloROS()
     drone.send_command("mon")
-    drone.send_command("takeoff")
-    while drone.get_state()['mid'] < 0:
+    drone.send_command("takeoff", 0)
+    while drone.get_state()['mid'] == -1:
         time.sleep(0.1)
     mid = drone.get_state()['mid']
-    go(drone, 0, 0, 50, mid)
-    drone.send_command("land")
+    go(drone, 50, 50, 50, mid)
+    drone.send_command("land", 0)
 
 if __name__ == '__main__':
     # test_base_class()
     # test_ros_class()
-    test_color_detection()
-    # test_go()
+    # test_color_detection()
+    test_go()

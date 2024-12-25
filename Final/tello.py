@@ -96,7 +96,8 @@ class Tello:
         """
         self.socket_cmd.sendto(command.encode('utf-8'), self.tello_address)
         logger.info("Sending Command: {}".format(command))
-        self.socket_cmd.settimeout(timeout)
+        if timeout:
+            self.socket_cmd.settimeout(timeout)
         try:
             response, _ = self.socket_cmd.recvfrom(256)
             if response:
