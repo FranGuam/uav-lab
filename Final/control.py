@@ -85,7 +85,22 @@ def test_go():
     while drone.get_state()['mid'] == -1:
         time.sleep(0.1)
     mid = drone.get_state()['mid']
-    go(drone, 50, 50, 50, mid)
+    go(drone, 50, 50, 150, mid)
+    drone.send_command("land", 0)
+
+def curve(drone, x1, y1, z1, x2, y2, z2, mid, speed=60):
+    drone.send_command("curve %d %d %d %d %d %d %d m%d" % (x1, y1, z1, x2, y2, z2, speed, mid), 0)
+
+def test_curve():
+    rospy.init_node('tello', anonymous=True)
+    drone = TelloROS()
+    drone.send_command("mon")
+    drone.send_command("takeoff", 0)
+    while drone.get_state()['mid'] == -1:
+        time.sleep(0.1)
+    mid = drone.get_state()['mid']
+    go(drone, -50, -50, 150, mid)
+    curve(drone, 50, -50, 150, 50, 50, 150, mid)
     drone.send_command("land", 0)
 
 def trim_angle(deg):
@@ -152,5 +167,6 @@ if __name__ == '__main__':
     # test_state()
     # test_color_detection()
     # test_go()
+    test_curve()
     # test_turn()
-    test_judge()
+    # test_judge()
