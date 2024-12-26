@@ -1,3 +1,4 @@
+import math
 import time
 
 import cv2
@@ -51,6 +52,13 @@ def test_ros_class():
     drone.send_command("land", 0)
     cv2.waitKey(0)
 
+def test_state():
+    rospy.init_node('tello', anonymous=True)
+    drone = TelloROS()
+    drone.send_command("mon")
+    while True:
+        print("State: ", drone.get_state())
+
 def test_color_detection():
     rospy.init_node('tello', anonymous=True)
     drone = TelloROS()
@@ -79,46 +87,60 @@ def test_go():
     go(drone, 50, 50, 50, mid)
     drone.send_command("land", 0)
 
-def turn(drone, yaw, use_mpad=True):
-    if use_mpad:
-        current = drone.get_state()['mpry'][2]
-    else:
-        current = drone.get_state()['yaw']
-    delta = yaw - current
-    if delta > 180:
-        delta -= 360
-    elif delta < -180:
-        delta += 360
-    if delta > 0:
-        drone.send_command("cw %d" % delta, 0)
-    else:
-        drone.send_command("ccw %d" % -delta, 0)
+def trim_angle(deg):
+    if deg > 180:
+        deg -= 360
+    elif deg < -180:
+        deg += 360
+    return deg
 
-def turn_to(drone, x, y):
+def turn(drone, yaw, use_mpry=False, yaw_0=0):
+    if use_mpry:
+        current = drone.get_state()['mpry'][1]
+    else:
+        current = trim_angle(-(drone.get_state()['yaw'] - yaw_0))
+    delta = trim_angle(yaw - current)
+    if delta > 0:
+        drone.send_command("ccw %d" % delta, 0)
+    else:
+        drone.send_command("cw %d" % -delta, 0)
+
+def turn_to(drone, x, y, use_mpry=False, yaw_0=0):
     current_x = drone.get_state()['x']
     current_y = drone.get_state()['y']
     delta_x = x - current_x
     delta_y = y - current_y
-    yaw = 90 - math.degrees(math.atan2(delta_y, delta_x))
-    turn(drone, yaw)
+    yaw = math.degrees(math.atan2(delta_y, delta_x))
+    turn(drone, yaw, use_mpry, yaw_0)
 
 def test_turn():
     rospy.init_node('tello', anonymous=True)
     drone = TelloROS()
     drone.send_command("mon")
     drone.send_command("takeoff", 0)
-    turn(drone, 0)
-    turn(drone, 180)
-    turn(drone, 90)
-    turn(drone, -180)
-    turn(drone, -90)
-    turn_to(drone, 0, 0)
+    while drone.get_state()['mid'] == -1:
+        time.sleep(0.1)
+    yaw_0 = trim_angle(drone.get_state()['yaw'] + drone.get_state()['mpry'][1])
+    print("Yaw 0: ", yaw_0)
+    turn(drone, 0, False, yaw_0)
+    time.sleep(1)
+    turn(drone, 180, False, yaw_0)
+    time.sleep(1)
+    turn(drone, 90, False, yaw_0)
+    time.sleep(1)
+    turn(drone, -180, False, yaw_0)
+    time.sleep(1)
+    turn(drone, 90, False, yaw_0)
+    time.sleep(1)
+    turn_to(drone, 0, 0, False, yaw_0)
+    time.sleep(1)
     drone.send_command("land", 0)
 
 
 if __name__ == '__main__':
     # test_base_class()
     # test_ros_class()
+    # test_state()
     # test_color_detection()
     # test_go()
     test_turn()
