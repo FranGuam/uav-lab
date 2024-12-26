@@ -79,8 +79,46 @@ def test_go():
     go(drone, 50, 50, 50, mid)
     drone.send_command("land", 0)
 
+def turn(drone, yaw, use_mpad=True):
+    if use_mpad:
+        current = drone.get_state()['mpry'][2]
+    else:
+        current = drone.get_state()['yaw']
+    delta = yaw - current
+    if delta > 180:
+        delta -= 360
+    elif delta < -180:
+        delta += 360
+    if delta > 0:
+        drone.send_command("cw %d" % delta, 0)
+    else:
+        drone.send_command("ccw %d" % -delta, 0)
+
+def turn_to(drone, x, y):
+    current_x = drone.get_state()['x']
+    current_y = drone.get_state()['y']
+    delta_x = x - current_x
+    delta_y = y - current_y
+    yaw = 90 - math.degrees(math.atan2(delta_y, delta_x))
+    turn(drone, yaw)
+
+def test_turn():
+    rospy.init_node('tello', anonymous=True)
+    drone = TelloROS()
+    drone.send_command("mon")
+    drone.send_command("takeoff", 0)
+    turn(drone, 0)
+    turn(drone, 180)
+    turn(drone, 90)
+    turn(drone, -180)
+    turn(drone, -90)
+    turn_to(drone, 0, 0)
+    drone.send_command("land", 0)
+
+
 if __name__ == '__main__':
     # test_base_class()
     # test_ros_class()
     # test_color_detection()
-    test_go()
+    # test_go()
+    test_turn()
