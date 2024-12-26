@@ -3,6 +3,7 @@ import time
 
 import cv2
 import rospy
+from std_msgs.msg import String
 
 from tello import Tello, TelloROS
 
@@ -136,6 +137,14 @@ def test_turn():
     time.sleep(1)
     drone.send_command("land", 0)
 
+def test_judge():
+    rospy.init_node('tello', anonymous=True)
+    judge_pub = rospy.Publisher('judge', String, queue_size=1)
+    drone = TelloROS()
+    drone.send_command("takeoff", 0)
+    judge_pub.publish("RGB")
+    drone.send_command("land", 0)
+
 
 if __name__ == '__main__':
     # test_base_class()
@@ -143,4 +152,5 @@ if __name__ == '__main__':
     # test_state()
     # test_color_detection()
     # test_go()
-    test_turn()
+    # test_turn()
+    test_judge()
