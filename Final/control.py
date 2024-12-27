@@ -10,26 +10,26 @@ from tello import Tello, TelloROS
 
 hsv_thresholds = {
     'orange': {
-        'H': [11, 18],
+        'H': [11, 14],
         'S': [120, 255],
         'V': [70, 255],
     },
     'green': {
-        'H': [41, 48],
-        'S': [120, 255],
-        'V': [70, 255],
+        'H': [30, 50],
+        'S': [70, 255],
+        'V': [50, 255],
     },
     'blue': {
-        'H': [105, 110],
-        'S': [120, 255],
-        'V': [70, 255],
+        'H': [90, 110],
+        'S': [70, 255],
+        'V': [50, 255],
     },
 }
 
 size_thresholds = {
-    'orange': 50000,
-    'green': 10000,
-    'blue': 10000,
+    'orange': 60000,
+    'green': 20000,
+    'blue': 20000,
 }
 
 abbr = {
@@ -226,7 +226,7 @@ def stage_1():
             return 'R'
 
     def task_2_circle(drone, mid, yaw_0):
-        go(drone, -50, -50, 130, mid)
+        go(drone, -50, -50, 135, mid)
         turn(drone, 40, False, yaw_0)
         rc(drone, -28, 0, 0, 50)
         ans = ''
@@ -245,44 +245,44 @@ def stage_1():
         return ans
 
     def task_2_square(drone, mid, yaw_0):
-        go(drone, -50, -50, 130, mid)
+        go(drone, -50, -50, 135, mid)
         turn(drone, 45, False, yaw_0)
         color = color_detection(drone.get_image(), hsv_thresholds, size_thresholds, debug=True, debug_prefix="task_2_1")
         if color:
             go(drone, -50, 50, 140, mid)
             return abbr[color]
-        go(drone, -70, 0, 130, mid)
+        go(drone, -70, 0, 135, mid)
         turn(drone, 0, False, yaw_0)
         color = color_detection(drone.get_image(), hsv_thresholds, size_thresholds, debug=True, debug_prefix="task_2_2")
         if color:
             go(drone, -50, 50, 140, mid)
             return abbr[color]
-        go(drone, -50, 50, 130, mid)
+        go(drone, -50, 50, 135, mid)
         turn(drone, -45, False, yaw_0)
         color = color_detection(drone.get_image(), hsv_thresholds, size_thresholds, debug=True, debug_prefix="task_2_3")
         if color:
             return abbr[color]
-        go(drone, 0, 70, 130, mid)
+        go(drone, 0, 70, 135, mid)
         turn(drone, -90, False, yaw_0)
         color = color_detection(drone.get_image(), hsv_thresholds, size_thresholds, debug=True, debug_prefix="task_2_4")
         if color:
             return abbr[color]
-        go(drone, 50, 50, 130, mid)
+        go(drone, 50, 50, 135, mid)
         turn(drone, -135, False, yaw_0)
         color = color_detection(drone.get_image(), hsv_thresholds, size_thresholds, debug=True, debug_prefix="task_2_5")
         if color:
             return abbr[color]
-        go(drone, 70, 0, 130, mid)
+        go(drone, 70, 0, 135, mid)
         turn(drone, 180, False, yaw_0)
         color = color_detection(drone.get_image(), hsv_thresholds, size_thresholds, debug=True, debug_prefix="task_2_6")
         if color:
             return abbr[color]
-        go(drone, 50, -50, 130, mid)
+        go(drone, 50, -50, 135, mid)
         turn(drone, 135, False, yaw_0)
         color = color_detection(drone.get_image(), hsv_thresholds, size_thresholds, debug=True, debug_prefix="task_2_7")
         if color:
             return abbr[color]
-        go(drone, 0, -70, 130, mid)
+        go(drone, 0, -70, 135, mid)
         turn(drone, 90, False, yaw_0)
         color = color_detection(drone.get_image(), hsv_thresholds, size_thresholds, debug=True, debug_prefix="task_2_8")
         go(drone, 50, -50, 140, mid)
