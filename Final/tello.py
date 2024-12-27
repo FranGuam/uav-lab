@@ -52,10 +52,10 @@ class Tello:
         # Open command mode and video stream on Tello
         self.socket_cmd = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.socket_cmd.bind((local_ip, local_port_cmd))
-        response = self.send_command('command')
+        response = self.send_command_and_receive_response('command')
         if response != 'ok':
             raise Exception('Tello failed to enter command mode')
-        response = self.send_command('streamon')
+        response = self.send_command_and_receive_response('streamon')
         if response != 'ok':
             raise Exception('Tello failed to start video stream')
         
