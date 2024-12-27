@@ -306,7 +306,7 @@ def stage_1():
     response = drone.send_command_and_receive_response("takeoff", 20)
     if response != 'ok':
         return
-    while drone.get_state()['mid'] < 0:
+    while drone.get_state()['mid'] == -1:
         time.sleep(0.1)
     mid = drone.get_state()['mid']
     yaw_0 = trim_angle(drone.get_state()['yaw'] + drone.get_state()['mpry'][1])
@@ -315,6 +315,84 @@ def stage_1():
     task_2_ans = task_2_square(drone, mid, yaw_0)
     task_3_ans = task_3(drone, mid, yaw_0)
     judge_pub.publish(task_1_ans + task_2_ans + task_3_ans)
+    go(drone, 210, 210, 30, mid)
+    drone.send_command_and_receive_response("land", 20)
+
+def stage_2():
+    def task_unknown(drone, mid, yaw_0, sign):
+        turn(drone, 90, False, yaw_0)
+        go(drone, sign * 155, -110, 85, mid)
+        color = color_detection(drone.get_image(), hsv_thresholds, size_thresholds, debug=True, debug_prefix="point_"+str(sign)+"_1")
+        if color:
+            if sign == 1:
+                go(drone, 155, -110, 150, mid)
+            return abbr[color]
+        go(drone, sign * 220, -110, 85, mid)
+        go(drone, sign * 220, -30, 85, mid)
+        if sign == -1:
+            turn(drone, 0, False, yaw_0)
+        else:
+            turn(drone, 180, False, yaw_0)
+        color = color_detection(drone.get_image(), hsv_thresholds, size_thresholds, debug=True, debug_prefix="point_"+str(sign)+"_2")
+        if color:
+            if sign == -1:
+                go(drone, -220, -110, 85, mid)
+            else:
+                go(drone, 220, -30, 150, mid)
+            return abbr[color]
+        go(drone, sign * 220, 30, 85, mid)
+        color = color_detection(drone.get_image(), hsv_thresholds, size_thresholds, debug=True, debug_prefix="point_"+str(sign)+"_3")
+        if color:
+            if sign == -1:
+                go(drone, -220, -110, 85, mid)
+            else:
+                go(drone, 220, 30, 150, mid)
+            return abbr[color]
+        go(drone, sign * 220, 110, 85, mid)
+        go(drone, sign * 155, 110, 85, mid)
+        turn(drone, -90, False, yaw_0)
+        color = color_detection(drone.get_image(), hsv_thresholds, size_thresholds, debug=True, debug_prefix="point_"+str(sign)+"_4")
+        if color:
+            if sign == -1:
+                go(drone, -80, 110, 85, mid)
+                go(drone, -80, -110, 85, mid)
+            return abbr[color]
+        go(drone, sign * 80, 110, 85, mid)
+        go(drone, sign * 80, 30, 85, mid)
+        if sign == -1:
+            turn(drone, 180, False, yaw_0)
+        else:
+            turn(drone, 0, False, yaw_0)
+        color = color_detection(drone.get_image(), hsv_thresholds, size_thresholds, debug=True, debug_prefix="point_"+str(sign)+"_5")
+        if color:
+            if sign == -1:
+                go(drone, -80, -110, 85, mid)
+            return abbr[color]
+        go(drone, sign * 80, -30, 85, mid)
+        color = color_detection(drone.get_image(), hsv_thresholds, size_thresholds, debug=True, debug_prefix="point_"+str(sign)+"_6")
+        if color:
+            if sign == -1:
+                go(drone, -80, -110, 85, mid)
+            return abbr[color]
+        if sign == -1:
+            go(drone, -80, -110, 85, mid)
+        return 'R'
+    
+    rospy.init_node('tello', anonymous=True)
+    judge_pub = rospy.Publisher('judge', String, queue_size=1)
+    drone = TelloROS()
+    drone.send_command_and_receive_response("mon")
+    response = drone.send_command_and_receive_response("takeoff", 20)
+    if response != 'ok':
+        return
+    while drone.get_state()['mid'] == -1:
+        time.sleep(0.1)
+    mid = drone.get_state()['mid']
+    yaw_0 = trim_angle(drone.get_state()['yaw'] + drone.get_state()['mpry'][1])
+
+    task_a_ans = task_unknown(drone, mid, yaw_0, -1)
+    task_b_ans = task_unknown(drone, mid, yaw_0, 1)
+    judge_pub.publish(task_a_ans + task_b_ans)
     go(drone, 210, 210, 30, mid)
     drone.send_command_and_receive_response("land", 20)
 
@@ -329,4 +407,5 @@ if __name__ == '__main__':
     # test_turn()
     # test_rc()
     # test_judge()
-    stage_1()
+    # stage_1()
+    stage_2()
