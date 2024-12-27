@@ -104,9 +104,8 @@ def color_detection(img, hsv_thresholds, size_thresholds, debug=False, debug_pre
             cv2.imwrite(debug_prefix + "_mask_" + color + ".png", mask)
     for color in color_size:
         color_size[color] -= size_thresholds[color]
-    max_color = max(color_size)
-    max_size = color_size[max_color]
-    if max_size > 0:
+    max_color = max(color_size, key=color_size.get)
+    if color_size[max_color] > 0:
         return max_color
     else:
         return None
