@@ -152,6 +152,25 @@ def test_turn():
     time.sleep(1)
     drone.send_command_and_receive_response("land", 0)
 
+def rc(drone, roll, pitch, throttle, yaw):
+    drone.send_command("rc %d %d %d %d" % (roll, pitch, throttle, yaw))
+
+def test_rc():
+    rospy.init_node('tello', anonymous=True)
+    drone = TelloROS()
+    drone.send_command_and_receive_response("mon")
+    drone.send_command_and_receive_response("takeoff", 0)
+    while drone.get_state()['mid'] == -1:
+        time.sleep(0.1)
+    mid = drone.get_state()['mid']
+    yaw_0 = trim_angle(drone.get_state()['yaw'] + drone.get_state()['mpry'][1])
+    go(drone, -50, -50, 150, mid)
+    turn(drone, 40, False, yaw_0)
+    rc(drone, -28, 0, 0, 50)
+    time.sleep(8)
+    rc(drone, 0, 0, 0, 0)
+    drone.send_command_and_receive_response("land", 0)
+
 def test_judge():
     rospy.init_node('tello', anonymous=True)
     judge_pub = rospy.Publisher('judge', String, queue_size=1)
@@ -167,6 +186,7 @@ if __name__ == '__main__':
     # test_state()
     # test_color_detection()
     # test_go()
-    test_curve()
+    # test_curve()
     # test_turn()
+    test_rc()
     # test_judge()
