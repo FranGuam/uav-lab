@@ -28,35 +28,35 @@ thresholds = {
 
 def test_base_class():
     drone = Tello()
-    drone.send_command("sdk?")
-    drone.send_command("sn?")
-    drone.send_command("battery?")
-    drone.send_command("wifi?")
-    drone.send_command("takeoff", 0)
+    drone.send_command_and_receive_response("sdk?")
+    drone.send_command_and_receive_response("sn?")
+    drone.send_command_and_receive_response("battery?")
+    drone.send_command_and_receive_response("wifi?")
+    drone.send_command_and_receive_response("takeoff", 0)
     print("State: ", drone.get_state())
     img = cv2.cvtColor(drone.get_image(), cv2.COLOR_RGB2BGR)
     cv2.imshow("tello_image", img)
-    drone.send_command("land", 0)
+    drone.send_command_and_receive_response("land", 0)
     cv2.waitKey(0)
 
 def test_ros_class():
     rospy.init_node('tello', anonymous=True)
     drone = TelloROS()
-    drone.send_command("sdk?")
-    drone.send_command("sn?")
-    drone.send_command("battery?")
-    drone.send_command("wifi?")
-    drone.send_command("takeoff", 0)
+    drone.send_command_and_receive_response("sdk?")
+    drone.send_command_and_receive_response("sn?")
+    drone.send_command_and_receive_response("battery?")
+    drone.send_command_and_receive_response("wifi?")
+    drone.send_command_and_receive_response("takeoff", 0)
     print("State: ", drone.get_state())
     img = cv2.cvtColor(drone.get_image(), cv2.COLOR_RGB2BGR)
     cv2.imshow("tello_image", img)
-    drone.send_command("land", 0)
+    drone.send_command_and_receive_response("land", 0)
     cv2.waitKey(0)
 
 def test_state():
     rospy.init_node('tello', anonymous=True)
     drone = TelloROS()
-    drone.send_command("mon")
+    drone.send_command_and_receive_response("mon")
     while True:
         print("State: ", drone.get_state())
 
@@ -75,33 +75,33 @@ def test_color_detection():
     cv2.waitKey(0)
 
 def go(drone, x, y, z, mid, speed=100):
-    drone.send_command("go %d %d %d %d m%d" % (x, y, z, speed, mid), 0)
+    drone.send_command_and_receive_response("go %d %d %d %d m%d" % (x, y, z, speed, mid), 0)
 
 def test_go():
     rospy.init_node('tello', anonymous=True)
     drone = TelloROS()
-    drone.send_command("mon")
-    drone.send_command("takeoff", 0)
+    drone.send_command_and_receive_response("mon")
+    drone.send_command_and_receive_response("takeoff", 0)
     while drone.get_state()['mid'] == -1:
         time.sleep(0.1)
     mid = drone.get_state()['mid']
     go(drone, 50, 50, 150, mid)
-    drone.send_command("land", 0)
+    drone.send_command_and_receive_response("land", 0)
 
 def curve(drone, x1, y1, z1, x2, y2, z2, mid, speed=60):
-    drone.send_command("curve %d %d %d %d %d %d %d m%d" % (x1, y1, z1, x2, y2, z2, speed, mid), 0)
+    drone.send_command_and_receive_response("curve %d %d %d %d %d %d %d m%d" % (x1, y1, z1, x2, y2, z2, speed, mid), 0)
 
 def test_curve():
     rospy.init_node('tello', anonymous=True)
     drone = TelloROS()
-    drone.send_command("mon")
-    drone.send_command("takeoff", 0)
+    drone.send_command_and_receive_response("mon")
+    drone.send_command_and_receive_response("takeoff", 0)
     while drone.get_state()['mid'] == -1:
         time.sleep(0.1)
     mid = drone.get_state()['mid']
     go(drone, -50, -50, 150, mid)
     curve(drone, 50, -50, 150, 50, 50, 150, mid)
-    drone.send_command("land", 0)
+    drone.send_command_and_receive_response("land", 0)
 
 def trim_angle(deg):
     if deg > 180:
@@ -117,9 +117,9 @@ def turn(drone, yaw, use_mpry=False, yaw_0=0):
         current = trim_angle(-(drone.get_state()['yaw'] - yaw_0))
     delta = trim_angle(yaw - current)
     if delta > 0:
-        drone.send_command("ccw %d" % delta, 0)
+        drone.send_command_and_receive_response("ccw %d" % delta, 0)
     else:
-        drone.send_command("cw %d" % -delta, 0)
+        drone.send_command_and_receive_response("cw %d" % -delta, 0)
 
 def turn_to(drone, x, y, use_mpry=False, yaw_0=0):
     current_x = drone.get_state()['x']
@@ -132,8 +132,8 @@ def turn_to(drone, x, y, use_mpry=False, yaw_0=0):
 def test_turn():
     rospy.init_node('tello', anonymous=True)
     drone = TelloROS()
-    drone.send_command("mon")
-    drone.send_command("takeoff", 0)
+    drone.send_command_and_receive_response("mon")
+    drone.send_command_and_receive_response("takeoff", 0)
     while drone.get_state()['mid'] == -1:
         time.sleep(0.1)
     yaw_0 = trim_angle(drone.get_state()['yaw'] + drone.get_state()['mpry'][1])
@@ -150,15 +150,15 @@ def test_turn():
     time.sleep(1)
     turn_to(drone, 0, 0, False, yaw_0)
     time.sleep(1)
-    drone.send_command("land", 0)
+    drone.send_command_and_receive_response("land", 0)
 
 def test_judge():
     rospy.init_node('tello', anonymous=True)
     judge_pub = rospy.Publisher('judge', String, queue_size=1)
     drone = TelloROS()
-    drone.send_command("takeoff", 0)
+    drone.send_command_and_receive_response("takeoff", 0)
     judge_pub.publish("RGB")
-    drone.send_command("land", 0)
+    drone.send_command_and_receive_response("land", 0)
 
 
 if __name__ == '__main__':

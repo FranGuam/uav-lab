@@ -85,17 +85,24 @@ class Tello:
         if hasattr(self, 'socket_video') and self.socket_video:
             self.socket_video.close()
     
-    def send_command(self, command: str, timeout=1):
+    def send_command(self, command: str):
         """
-        Send a command to the Tello and wait for a response.
+        Send a command to Tello.
 
         :param command: Command to send.
-        :param timeout: Time (in seconds) to wait for a response.
-        :return (str): Response from Tello.
 
         """
         self.socket_cmd.sendto(command.encode('utf-8'), self.tello_address)
         logger.info("Sending Command: {}".format(command))
+
+    def receive_response(self, timeout=1):
+        """
+        Receive response from Tello.
+
+        :param timeout: Time (in seconds) to wait for a response.
+        :return (str): Response from Tello.
+
+        """
         if timeout:
             self.socket_cmd.settimeout(timeout)
         try:
@@ -105,11 +112,23 @@ class Tello:
                 logger.info("Response: {}".format(response))
                 return response
         except socket.timeout:
-            logger.warning("Command timed out: {}".format(command))
+            logger.warning("Command timed out.")
             return None
         finally:
             self.socket_cmd.settimeout(None)
 
+    def send_command_and_receive_response(self, command: str, timeout=1):
+        """
+        Send a command to Tello and wait for a response.
+
+        :param command: Command to send.
+        :param timeout: Time (in seconds) to wait for a response.
+        :return (str): Response from Tello.
+
+        """
+        self.send_command(command)
+        return self.receive_response(timeout)
+        
     def receive_state(self, after_receive: Callable):
         """Receive state from Tello."""
         while True:
@@ -186,7 +205,6 @@ class TelloROS(Tello):
         :param tello_port (int): Tello port.
         """
 
-        self.command_pub = rospy.Publisher('tello_command', String, queue_size=1)
         self.state_pub = rospy.Publisher('tello_state', String, queue_size=1)
         self.img_pub = rospy.Publisher('tello_image', Image, queue_size=1)
         self.bridge = CvBridge()
@@ -209,20 +227,3 @@ class TelloROS(Tello):
             rospy.logerr('CV bridge failed: %s' % str(err))
             return
         self.img_pub.publish(img_msg)
-
-    def send_command(self, command: str, timeout=1):
-        """
-        Send a command to the Tello and wait for a response.
-
-        :param command: Command to send.
-        :param timeout: Time (in seconds) to wait for a response.
-        :return (str): Response from Tello.
-
-        """
-        self.command_pub.publish("Sending Command: %s" % command)
-        response = super().send_command(command, timeout)
-        if response:
-            self.command_pub.publish("Response: %s" % response)
-        else:
-            self.command_pub.publish("Command timed out: %s" % command)
-        return response
