@@ -227,17 +227,19 @@ def stage_1():
 
     def task_2_circle(drone, mid, yaw_0):
         go(drone, -50, -50, 135, mid)
-        turn(drone, 40, False, yaw_0)
+        turn(drone, 50, False, yaw_0)
         rc(drone, -28, 0, 0, 50)
         ans = ''
         start = time.time()
-        while time.time() - start < 8:
+        while time.time() - start < 10:
             color = color_detection(drone.get_image(), hsv_thresholds, size_thresholds)
             if color:
                 ans = abbr[color]
                 break
         if time.time() - start < 2:
             go(drone, -50, 50, 140, mid)
+        elif time.time() - start > 8:
+            go(drone, 50, -50, 140, mid)
         else:
             rc(drone, 0, 0, 0, 0)
         if ans == '':
