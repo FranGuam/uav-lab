@@ -20,16 +20,16 @@ hsv_thresholds = {
         'V': [50, 255],
     },
     'blue': {
-        'H': [90, 110],
+        'H': [90, 105],
         'S': [70, 255],
         'V': [50, 255],
     },
 }
 
 size_thresholds = {
-    'orange': 60000,
-    'green': 20000,
-    'blue': 20000,
+    'orange': 40000,
+    'green': 10000,
+    'blue': 10000,
 }
 
 abbr = {
