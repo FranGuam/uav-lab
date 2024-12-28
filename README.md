@@ -2,6 +2,8 @@
 
 Class homeworks & projects for Intelligent UAV Design and Implementation 2024 Fall
 
+> **This is now a public archive. If you wish to use this code, please let us know.**
+
 ## 开发环境
 
 ### 使用DevContainer
