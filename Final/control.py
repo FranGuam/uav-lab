@@ -323,61 +323,62 @@ def stage_1():
 def stage_2():
     def task_unknown(drone, mid, yaw_0, sign):
         turn(drone, 90, False, yaw_0)
-        go(drone, sign * 155, -110, 85, mid)
+        go(drone, sign * 160, -110, 100, mid)
+        
         color = color_detection(drone.get_image(), hsv_thresholds, size_thresholds, debug=True, debug_prefix="point_"+str(sign)+"_1")
         if color:
             if sign == 1:
-                go(drone, 155, -110, 150, mid)
+                go(drone, 230, -110, 100, mid)
             return abbr[color]
-        go(drone, sign * 220, -110, 85, mid)
-        go(drone, sign * 220, -30, 85, mid)
+        
         if sign == -1:
             turn(drone, 0, False, yaw_0)
         else:
             turn(drone, 180, False, yaw_0)
+        go(drone, sign * 230, -110, 100, mid)
+        go(drone, sign * 230, -30, 100, mid)
         color = color_detection(drone.get_image(), hsv_thresholds, size_thresholds, debug=True, debug_prefix="point_"+str(sign)+"_2")
         if color:
             if sign == -1:
-                go(drone, -220, -110, 85, mid)
-            else:
-                go(drone, 220, -30, 150, mid)
+                go(drone, -230, -110, 100, mid)
             return abbr[color]
-        go(drone, sign * 220, 30, 85, mid)
+        go(drone, sign * 230, 35, 100, mid)
         color = color_detection(drone.get_image(), hsv_thresholds, size_thresholds, debug=True, debug_prefix="point_"+str(sign)+"_3")
         if color:
             if sign == -1:
-                go(drone, -220, -110, 85, mid)
-            else:
-                go(drone, 220, 30, 150, mid)
+                go(drone, -230, -110, 100, mid)
             return abbr[color]
-        go(drone, sign * 220, 110, 85, mid)
-        go(drone, sign * 155, 110, 85, mid)
         turn(drone, -90, False, yaw_0)
+        go(drone, sign * 230, 110, 100, mid)
+        go(drone, sign * 155, 110, 100, mid)
         color = color_detection(drone.get_image(), hsv_thresholds, size_thresholds, debug=True, debug_prefix="point_"+str(sign)+"_4")
         if color:
             if sign == -1:
-                go(drone, -80, 110, 85, mid)
-                go(drone, -80, -110, 85, mid)
+                go(drone, -80, 110, 100, mid)
+                go(drone, -80, -110, 100, mid)
             return abbr[color]
-        go(drone, sign * 80, 110, 85, mid)
-        go(drone, sign * 80, 30, 85, mid)
+        
         if sign == -1:
             turn(drone, 180, False, yaw_0)
         else:
             turn(drone, 0, False, yaw_0)
+        go(drone, sign * 80, 110, 100, mid)
+        go(drone, sign * 80, 30, 100, mid)
         color = color_detection(drone.get_image(), hsv_thresholds, size_thresholds, debug=True, debug_prefix="point_"+str(sign)+"_5")
         if color:
             if sign == -1:
-                go(drone, -80, -110, 85, mid)
+                go(drone, -80, -110, 100, mid)
+            else:
+                go(drone, 80, 100, 100, mid)
             return abbr[color]
-        go(drone, sign * 80, -30, 85, mid)
+        go(drone, sign * 80, -30, 100, mid)
         color = color_detection(drone.get_image(), hsv_thresholds, size_thresholds, debug=True, debug_prefix="point_"+str(sign)+"_6")
-        if color:
-            if sign == -1:
-                go(drone, -80, -110, 85, mid)
-            return abbr[color]
         if sign == -1:
-            go(drone, -80, -110, 85, mid)
+            go(drone, -80, -110, 100, mid)
+        else:
+            go(drone, 80, 100, 100, mid)
+        if color:
+            return abbr[color]
         return 'R'
     
     rospy.init_node('tello', anonymous=True)
